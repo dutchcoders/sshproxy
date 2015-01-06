@@ -11,7 +11,7 @@ type SshConn struct {
 	net.Conn
 	config     *ssh.ServerConfig
 	callbackFn func(c ssh.ConnMetadata) (*ssh.Client, error)
-	wrapFn     func(r io.ReadCloser) (io.ReadCloser, error)
+	wrapFn     func(c ssh.ConnMetadata, r io.ReadCloser) (io.ReadCloser, error)
 	closeFn    func(c ssh.ConnMetadata) error
 }
 
@@ -95,7 +95,7 @@ func (p *SshConn) serve() error {
 
 		if p.wrapFn != nil {
 			// wrappedChannel, err = p.wrapFn(channel)
-			wrappedChannel2, err = p.wrapFn(channel2)
+			wrappedChannel2, err = p.wrapFn(serverConn, channel2)
 		}
 
 		go io.Copy(channel2, wrappedChannel)
@@ -114,7 +114,7 @@ func (p *SshConn) serve() error {
 
 func ListenAndServe(addr string, serverConfig *ssh.ServerConfig,
 	callbackFn func(c ssh.ConnMetadata) (*ssh.Client, error),
-	wrapFn func(r io.ReadCloser) (io.ReadCloser, error),
+	wrapFn func(c ssh.ConnMetadata, r io.ReadCloser) (io.ReadCloser, error),
 	closeFn func(c ssh.ConnMetadata) error,
 ) {
 	listener, err := net.Listen("tcp", addr)
