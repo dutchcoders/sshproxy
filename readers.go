@@ -40,10 +40,11 @@ func (lr *TypeWriterReadCloser) Read(p []byte) (n int, err error) {
 	return n, err
 }
 
+func (lr *TypeWriterReadCloser) String() string {
+	return lr.buffer.String()
+}
+
 func (lr *TypeWriterReadCloser) Close() error {
-	fmt.Println("Typewriter output:")
-	lr.buffer.WriteTo(os.Stdout)
-	fmt.Println("\n")
 	return lr.ReadCloser.Close()
 }
 
