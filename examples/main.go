@@ -64,5 +64,8 @@ func main() {
 		return client, err
 	}, func(r io.ReadCloser) (io.ReadCloser, error) {
 		return sshproxy.NewTypeWriterReadCloser(r), nil
+	}, func(c ssh.ConnMetadata) error {
+		fmt.Println("Connection closed.")
+		return nil
 	})
 }

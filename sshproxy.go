@@ -12,6 +12,7 @@ type SshConn struct {
 	config     *ssh.ServerConfig
 	callbackFn func(c ssh.ConnMetadata) (*ssh.Client, error)
 	wrapFn     func(r io.ReadCloser) (io.ReadCloser, error)
+	closeFn    func(c ssh.ConnMetadata) error
 }
 
 func (p *SshConn) serve() error {
@@ -104,7 +105,9 @@ func (p *SshConn) serve() error {
 		defer wrappedChannel2.Close()
 	}
 
-	log.Printf("Connection closed.\n")
+	if p.closeFn != nil {
+		p.closeFn(serverConn)
+	}
 
 	return nil
 }
@@ -112,7 +115,7 @@ func (p *SshConn) serve() error {
 func ListenAndServe(addr string, serverConfig *ssh.ServerConfig,
 	callbackFn func(c ssh.ConnMetadata) (*ssh.Client, error),
 	wrapFn func(r io.ReadCloser) (io.ReadCloser, error),
-
+	closeFn func(c ssh.ConnMetadata) error,
 ) {
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -128,7 +131,15 @@ func ListenAndServe(addr string, serverConfig *ssh.ServerConfig,
 		}
 
 		sshconn := &SshConn{Conn: conn, config: serverConfig, callbackFn: callbackFn, wrapFn: wrapFn}
-		go sshconn.serve()
+
+		go func() {
+			if err := sshconn.serve(); err != nil {
+				log.Printf("Error occured while serving %s\n", err)
+				return
+			}
+
+			log.Println("Connection closed.")
+		}()
 	}
 
 }
