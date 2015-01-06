@@ -7,7 +7,7 @@ Golang library to proxy ssh connections
 
 ## Why
 
-I'm using this library in a honeypot, using this library I can intercept the ssh connections and connect each connection to their own container.
+I'm using this library in a honeypot, using this library I can intercept the ssh connections and connect each connection to their own container. Sessions can be recorder using the TypeWriterReadCloser.
 
 ## Use cases
 
@@ -21,12 +21,11 @@ I'm using this library in a honeypot, using this library I can intercept the ssh
 
 ```
 go run examples/main.go --dest 172.16.84.182:22 --key examples/conf/id_rsa
-
 ```
 
 Screencast of recorded session:
 
-http://jsfiddle.net/qorz0any/
+http://jsfiddle.net/qorz0any/1/
 
 ## Contributions
 Contributions are welcome.
