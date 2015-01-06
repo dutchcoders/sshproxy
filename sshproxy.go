@@ -130,7 +130,7 @@ func ListenAndServe(addr string, serverConfig *ssh.ServerConfig,
 			log.Fatalf("listen.Accept failed: %v", err)
 		}
 
-		sshconn := &SshConn{Conn: conn, config: serverConfig, callbackFn: callbackFn, wrapFn: wrapFn}
+		sshconn := &SshConn{Conn: conn, config: serverConfig, callbackFn: callbackFn, wrapFn: wrapFn, closeFn: closeFn}
 
 		go func() {
 			if err := sshconn.serve(); err != nil {
