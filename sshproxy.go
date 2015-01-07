@@ -118,7 +118,7 @@ func ListenAndServe(addr string, serverConfig *ssh.ServerConfig,
 	callbackFn func(c ssh.ConnMetadata) (*ssh.Client, error),
 	wrapFn func(c ssh.ConnMetadata, r io.ReadCloser) (io.ReadCloser, error),
 	closeFn func(c ssh.ConnMetadata) error,
-) {
+) error {
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Printf("net.Listen failed: %v", err)
