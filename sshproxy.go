@@ -38,12 +38,14 @@ func (p *SshConn) serve() error {
 
 		channel2, requests2, err2 := clientConn.OpenChannel(newChannel.ChannelType(), newChannel.ExtraData())
 		if err2 != nil {
-			log.Fatalf("Could not accept client channel: %s", err.Error())
+			log.Printf("Could not accept client channel: %s", err.Error())
+			return err
 		}
 
 		channel, requests, err := newChannel.Accept()
 		if err != nil {
-			log.Fatalf("Could not accept server channel: %s", err.Error())
+			log.Printf("Could not accept server channel: %s", err.Error())
+			return err
 		}
 
 		// connect requests
@@ -119,7 +121,8 @@ func ListenAndServe(addr string, serverConfig *ssh.ServerConfig,
 ) {
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalf("net.Listen failed: %v", err)
+		log.Printf("net.Listen failed: %v", err)
+		return err
 	}
 
 	defer listener.Close()
@@ -127,7 +130,8 @@ func ListenAndServe(addr string, serverConfig *ssh.ServerConfig,
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Fatalf("listen.Accept failed: %v", err)
+			log.Printf("listen.Accept failed: %v", err)
+			return err
 		}
 
 		sshconn := &SshConn{Conn: conn, config: serverConfig, callbackFn: callbackFn, wrapFn: wrapFn, closeFn: closeFn}
