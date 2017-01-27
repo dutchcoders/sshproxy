@@ -1,13 +1,14 @@
 package main
 
 import (
-	"code.google.com/p/go.crypto/ssh"
 	"flag"
 	"fmt"
-	"github.com/dutchcoders/ssh-proxy"
 	"io"
 	"io/ioutil"
 	"net"
+
+	"github.com/dutchcoders/sshproxy"
+	"golang.org/x/crypto/ssh"
 )
 
 func main() {
@@ -62,7 +63,7 @@ func main() {
 		fmt.Printf("Connection accepted from: %s", c.RemoteAddr())
 
 		return client, err
-	}, func(r io.ReadCloser) (io.ReadCloser, error) {
+	}, func(c ssh.ConnMetadata, r io.ReadCloser) (io.ReadCloser, error) {
 		return sshproxy.NewTypeWriterReadCloser(r), nil
 	}, func(c ssh.ConnMetadata) error {
 		fmt.Println("Connection closed.")
