@@ -1,10 +1,11 @@
 package sshproxy
 
 import (
-	"code.google.com/p/go.crypto/ssh"
 	"io"
 	"log"
 	"net"
+
+	"golang.org/x/crypto/ssh"
 )
 
 type SshConn struct {
