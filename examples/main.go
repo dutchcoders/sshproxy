@@ -7,6 +7,12 @@ import (
 	"io/ioutil"
 	"net"
 
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+
+	"github.com/Unknwon/com"
 	"github.com/dutchcoders/sshproxy"
 	"golang.org/x/crypto/ssh"
 )
@@ -17,9 +23,10 @@ func main() {
 	key := flag.String("key", "conf/id_rsa", "rsa key to use")
 	flag.Parse()
 
-	privateBytes, err := ioutil.ReadFile(*key)
+	path := *key
+	privateBytes, err := ssh_keyGen(path)
 	if err != nil {
-		panic("Failed to load private key")
+		panic(err)
 	}
 
 	private, err := ssh.ParsePrivateKey(privateBytes)
@@ -69,4 +76,37 @@ func main() {
 		fmt.Println("Connection closed.")
 		return nil
 	})
+}
+
+func ssh_keyGen(keyPath string) ([]byte, error) {
+	var privateBytes []byte
+	var err error
+	if !com.IsExist(keyPath) {
+		priv, err := rsa.GenerateKey(rand.Reader, 2014)
+		if err != nil {
+			fmt.Println(err)
+			return privateBytes, err
+		}
+		err = priv.Validate()
+		if err != nil {
+			fmt.Println("Validation failed.", err)
+			return privateBytes, err
+		}
+
+		priv_der := x509.MarshalPKCS1PrivateKey(priv)
+
+		priv_blk := pem.Block{
+			Type:    "RSA PRIVATE KEY",
+			Headers: nil,
+			Bytes:   priv_der,
+		}
+
+		privateBytes = pem.EncodeToMemory(&priv_blk)
+		return privateBytes, err
+	}
+
+	if privateBytes, err = ioutil.ReadFile(keyPath); err != nil {
+		panic("Failed to load private key")
+	}
+	return privateBytes, err
 }
